@@ -27,11 +27,13 @@ enum class MidiMessageType : unsigned char {
 template< typename FNPTR , typename T >
 void do_callback(  FNPTR fptr , const T& obj )
 {
+
     if (fptr != nullptr) {
         fptr(  obj );
     }
 }
 
+typedef std::vector< unsigned char > mididatabuffer_t;
 
 class MidiInputPort {
 
@@ -48,6 +50,12 @@ class MidiInputPort {
     MidiMessageType getMidiMessageType( unsigned char status );
     int getChannel(  unsigned char status );
 
+    bool isChannelModeMessage( MidiMessageType type , int byte1 );
+
+    void processChannelVoiceMessage( MidiMessageType type, int channel , int byte1 , int byte2 );
+    void processChannelModeMessage(  int channel , int byte1 , int byte2 );
+    void processSystemMessage( double deltatime ,  mididatabuffer_t* buffer  );
+
 public:
 
     void setSysExCallback( sysexcallbackfunc_t fn  );
@@ -55,7 +63,7 @@ public:
     void setVoiceMsgCallback( voicecallbackfunc_t fn  );
 
     void listen();
-    void processMessage(  double deltatime, std::vector< unsigned char > *message );
+    void processMessage(  double deltatime, mididatabuffer_t *message );
 
     MidiInputPort();
     MidiInputPort(int n);

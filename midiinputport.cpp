@@ -3,7 +3,7 @@
 
 #define DEBUG( x , y ) std::cout << "[DEBUG] channel: " << x << " type: " << #y << std::endl;
 
-void mycallback( double deltatime, std::vector< unsigned char > *message, void *userData )
+void mycallback( double deltatime, mididatabuffer_t *message, void *userData )
 {
     MidiInputPort* port = static_cast<MidiInputPort*>(  userData );
     if (port != nullptr) {
@@ -20,6 +20,30 @@ MidiMessageType MidiInputPort::getMidiMessageType(unsigned char status )
 int MidiInputPort::getChannel(unsigned char status)
 {
     return status & 0x0F;
+}
+
+bool MidiInputPort::isChannelModeMessage(MidiMessageType midimsgtype, int byte1)
+{
+    return midimsgtype == MidiMessageType::ControlChange && ( byte1 >= 0x79 && byte1 <= 0x7f) ;
+}
+
+void MidiInputPort::processChannelVoiceMessage(MidiMessageType type, int channel, int byte1, int byte2)
+{
+
+}
+
+void MidiInputPort::processChannelModeMessage(int channel, int byte1, int byte2)
+{
+
+}
+
+void MidiInputPort::processSystemMessage(double deltatime, mididatabuffer_t *buffer)
+{
+    unsigned int nBytes = buffer->size();
+    if (nBytes >= 1) {
+        sysex_.readMessage( buffer );
+        do_callback( sysexcallback_ , sysex_ );
+    }
 }
 
 void MidiInputPort::setSysExCallback(sysexcallbackfunc_t fn)
@@ -48,7 +72,8 @@ void MidiInputPort::listen()
 
 void MidiInputPort::processMessage(
         double deltatime,
-        std::vector<unsigned char> *message)
+        mididatabuffer_t *message
+        )
 {
     unsigned int nBytes = message->size();
     if (nBytes == 0 ) {
@@ -56,6 +81,8 @@ void MidiInputPort::processMessage(
     }
 
     unsigned char status_byte = message->at(0);
+    int byte1 = nBytes >= 2 ? byte1 = message->at(1) : -1;
+    int byte2 = nBytes >= 3 ? byte1 = message->at(2) : -1;
 
     std::cout << "status byte = " << (int) status_byte << "\n";
     MidiMessageType message_type = getMidiMessageType( status_byte );
@@ -63,50 +90,30 @@ void MidiInputPort::processMessage(
 
     switch (message_type) {
         case MidiMessageType::NoteOn:
-            DEBUG( channel ,  MidiMessageType::NoteOn )
-            break;
-
         case MidiMessageType::NoteOff:
-            DEBUG( channel , MidiMessageType::NoteOff )
-            break;
-
         case MidiMessageType::ChannelPressure:
-            DEBUG( channel, MidiMessageType::ChannelPressure )
+        case MidiMessageType::PolyphonicKeyPressure:
+        case MidiMessageType::ProgramChange:
+        case MidiMessageType::PitchBend:
+            processChannelVoiceMessage( message_type , channel , byte1 , byte2  );
             break;
 
         case MidiMessageType::ControlChange:
-            DEBUG( channel , MidiMessageType::ControlChange )
-            break;
-
-
-        case MidiMessageType::PolyphonicKeyPressure:
-            DEBUG( channel , MidiMessageType::PolyphonicKeyPressure )
-            break;
-
-
-        case MidiMessageType::ProgramChange:
-            DEBUG( channel , MidiMessageType::ProgramChange )
-            break;
-
-
-        case MidiMessageType::PitchBend:
-            DEBUG( channel , MidiMessageType::PitchBend )
+            if ( isChannelModeMessage( message_type , byte1 ) ) {
+                processChannelModeMessage( channel , byte1 , byte2 ) ;
+            } else {
+                processChannelVoiceMessage(message_type , channel , byte1 , byte2 );
+            }
             break;
 
         case MidiMessageType::System:
-            DEBUG( -1 , MidiMessageType::System )
+            processSystemMessage( deltatime,  message );
             break;
 
         default:
             DEBUG( -1, DEFAULT )
     }
 
-
-
-    for ( unsigned int i=0; i<nBytes; i++ )
-      std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-    if ( nBytes > 0 )
-      std::cout << "stamp = " << deltatime << std::endl;
 }
 
 

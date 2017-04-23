@@ -20,11 +20,6 @@ MidiOutputPort::~MidiOutputPort()
 
 void MidiOutputPort::noteOn(int key, int vel)
 {
-    std::vector< unsigned char >  	message(3);
-    message[0] = 0x90;
-    message[1] = 64;
-    message[2] = 90;
-    midiport_.sendMessage( &message );
 
 }
 
@@ -35,7 +30,6 @@ void MidiOutputPort::noteOff(int key)
 
 void MidiOutputPort::getOutput()
 {
-
     std::cout << "\nReading MIDI output ... press <enter> to quit.\n";
     char input;
     std::cin.get(input);

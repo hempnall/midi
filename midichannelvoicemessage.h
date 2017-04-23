@@ -8,6 +8,9 @@ class MidiChannelVoiceMessage : public virtual MidiChannelMessage
 public:
     MidiChannelVoiceMessage();
     ~MidiChannelVoiceMessage();
+
+
+
 };
 
 #endif // MIDICHANNELVOICEMESSAGE_H

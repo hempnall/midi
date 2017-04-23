@@ -1,8 +1,8 @@
 TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
-CONFIG -= qt
 CONFIG += c++11
+
 QMAKE_MAC_SDK = macosx10.12
 SOURCES += main.cpp \
     midiinputport.cpp \
@@ -12,7 +12,8 @@ SOURCES += main.cpp \
     midisystemmessage.cpp \
     midisystemexclusivemessage.cpp \
     midichannelvoicemessage.cpp \
-    midichannelmodemessage.cpp
+    midichannelmodemessage.cpp \
+    midibulkdump.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
@@ -30,7 +31,8 @@ HEADERS += \
     midisystemmessage.h \
     midisystemexclusivemessage.h \
     midichannelvoicemessage.h \
-    midichannelmodemessage.h
+    midichannelmodemessage.h \
+    midibulkdump.h
 
 DISTFILES += \
     README.md
