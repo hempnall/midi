@@ -42,23 +42,26 @@ void MidiInputPort::processSystemMessage(double deltatime, mididatabuffer_t *buf
     unsigned int nBytes = buffer->size();
     if (nBytes >= 1) {
         sysex_.readMessage( buffer );
-        do_callback( sysexcallback_ , sysex_ );
+        do_callback( sysexcallback_ , sysex_ , sysexcallbackobj_ );
     }
 }
 
-void MidiInputPort::setSysExCallback(sysexcallbackfunc_t fn)
+void MidiInputPort::setSysExCallback(sysexcallbackfunc_t fn, void* sysexcallbackobj)
 {
     sysexcallback_ = fn;
+    sysexcallbackobj_ = sysexcallbackobj;
 }
 
-void MidiInputPort::setModeMsgCallback(modemsgcallbackfunc_t fn)
+void MidiInputPort::setModeMsgCallback(modemsgcallbackfunc_t fn, void* modemsgcallbackobj)
 {
     modecallback_ = fn;
+    modemcallbackobj_ = modemsgcallbackobj;
 }
 
-void MidiInputPort::setVoiceMsgCallback(voicecallbackfunc_t fn)
+void MidiInputPort::setVoiceMsgCallback(voicecallbackfunc_t fn, void* voicemsgcallbackobj)
 {
     voicecallback_ = fn;
+    voicecallbackobj_ = voicemsgcallbackobj;
 }
 
 void MidiInputPort::listen()
@@ -119,7 +122,6 @@ void MidiInputPort::processMessage(
 
 
 MidiInputPort::MidiInputPort()
-    : sysexcallback_(nullptr),voicecallback_(nullptr),modecallback_(nullptr)
 {}
 
 MidiInputPort::MidiInputPort(int n)

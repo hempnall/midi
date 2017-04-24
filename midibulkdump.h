@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QByteArray>
 #include "midiinputport.h"
+#include "midioutputport.h"
 
 typedef QVector<QByteArray> sysex_messages_t;
 
@@ -21,8 +22,8 @@ public:
     MidiBulkDump();
     ~MidiBulkDump();
 
-    void addSysExMessage( std::vector< unsigned char >* sysex );
-    void sendToMidiPort( MidiInputPort& port );
+    void addSysExMessage( std::vector< unsigned char > const * sysex );
+    void sendToMidiPort( MidiOutputPort& port );
 
 };
 

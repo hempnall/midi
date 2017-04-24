@@ -1,15 +1,19 @@
+#include <QFile>
 #include <iostream>
 #include <fstream>
 #include "midi.h"
-
-using namespace std;
+#include "midibulkdump.h"
 
 #define MOXF_PATCH_PATH "/Users/jameshook/Music/moxf/bulkdumps"
 
 
-void callback_func(const MidiSystemExclusiveMessage& sysex)
+void callback_func(const MidiSystemExclusiveMessage& sysex, void * userdata)
 {
-    cout << "Im being a callback \n";
+    std::cout << "Im being a callback \n";
+    MidiBulkDump* bulkdump = static_cast<MidiBulkDump*>( userdata );
+    if (bulkdump != nullptr) {
+        bulkdump->addSysExMessage( &sysex.data()  );
+    }
 }
 
 
@@ -17,22 +21,37 @@ int main()
 {
 
     midioutputs_t outs;
-    cout << outs.size() << "\n";
+    std::cout << outs.size() << "\n";
 
 
     for (auto s : outs.portNames()) {
-        cout << s << "\n";
+        std::cout << s << "\n";
     }
 
 
     try {
 
-        MidiInputPort in_port(0);
-        in_port.setSysExCallback( callback_func );
-        in_port.listen();
-        std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
-        char input;
-        std::cin.get(input);
+//        MidiBulkDump bulkdump;
+
+//        MidiInputPort in_port(0);
+//        in_port.setSysExCallback( callback_func , (void*) &bulkdump);
+//        in_port.listen();
+//        std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
+//        char input;
+//        std::cin.get(input);
+
+//        QFile file( MOXF_PATCH_PATH "/bulktest.sysex"  );
+//        file.open( QIODevice::WriteOnly );
+//        QDataStream out(&file);
+//        out << bulkdump;
+
+        MidiBulkDump bulkdump;
+        QFile file( MOXF_PATCH_PATH "/grandpiano.sysex"  );
+        file.open( QIODevice::ReadOnly );
+        QDataStream in(&file);
+        in >> bulkdump;
+        MidiOutputPort out_port(0);
+        bulkdump.sendToMidiPort( out_port );
 
     } catch ( RtMidiError &error ) {
 

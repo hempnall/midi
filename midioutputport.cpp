@@ -35,4 +35,9 @@ void MidiOutputPort::getOutput()
     std::cin.get(input);
 }
 
+void MidiOutputPort::sendMessage(mididatabuffer_t *msg)
+{
+    midiport_.sendMessage(msg);
+}
+
 

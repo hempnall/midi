@@ -14,9 +14,11 @@ MidiSystemExclusiveMessage::~MidiSystemExclusiveMessage()
 
 void MidiSystemExclusiveMessage::readMessage(mididatabuffer_t *message)
 {
-    unsigned int nBytes = message->size();
-    for ( unsigned int i=0; i<nBytes; i++ )
-      std::cout << "Byte " << i << " = " << (int)message->at(i) << ", ";
-    std::cout << "\n";
+    bufferdata_ = mididatabuffer_t( message->begin() , message->end()  );
+}
+
+const mididatabuffer_t &MidiSystemExclusiveMessage::data() const
+{
+    return bufferdata_;
 }
 

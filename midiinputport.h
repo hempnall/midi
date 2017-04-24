@@ -8,9 +8,9 @@
 #include "midichannelmodemessage.h"
 
 
-typedef void (*sysexcallbackfunc_t)(const MidiSystemExclusiveMessage& sysex);
-typedef void (*voicecallbackfunc_t)(const MidiChannelVoiceMessage& voicemsg);
-typedef void (*modemsgcallbackfunc_t)(const MidiChannelModeMessage& modemsg);
+typedef void (*sysexcallbackfunc_t)(const MidiSystemExclusiveMessage& sysex, void* userdata);
+typedef void (*voicecallbackfunc_t)(const MidiChannelVoiceMessage& voicemsg, void* userdata);
+typedef void (*modemsgcallbackfunc_t)(const MidiChannelModeMessage& modemsg, void* userdata);
 
 
 enum class MidiMessageType : unsigned char {
@@ -25,11 +25,11 @@ enum class MidiMessageType : unsigned char {
 };
 
 template< typename FNPTR , typename T >
-void do_callback(  FNPTR fptr , const T& obj )
+void do_callback(  FNPTR fptr , const T& obj , void* userdata)
 {
 
     if (fptr != nullptr) {
-        fptr(  obj );
+        fptr(  obj , userdata );
     }
 }
 
@@ -37,13 +37,16 @@ typedef std::vector< unsigned char > mididatabuffer_t;
 
 class MidiInputPort {
 
-    sysexcallbackfunc_t sysexcallback_;
-    voicecallbackfunc_t voicecallback_;
-    modemsgcallbackfunc_t modecallback_;
+    sysexcallbackfunc_t sysexcallback_ ;
+    voicecallbackfunc_t voicecallback_ ;
+    modemsgcallbackfunc_t modecallback_ ;
 
     MidiSystemExclusiveMessage sysex_;
     MidiChannelModeMessage modemsg_;
     MidiChannelVoiceMessage voicemsg_;
+    void* sysexcallbackobj_ = nullptr;
+    void* modemcallbackobj_ = nullptr;
+    void* voicecallbackobj_ = nullptr;
 
     RtMidiIn midiport_;
 
@@ -58,9 +61,9 @@ class MidiInputPort {
 
 public:
 
-    void setSysExCallback( sysexcallbackfunc_t fn  );
-    void setModeMsgCallback( modemsgcallbackfunc_t fn);
-    void setVoiceMsgCallback( voicecallbackfunc_t fn  );
+    void setSysExCallback( sysexcallbackfunc_t fn , void* sysexcallbackobj = nullptr );
+    void setModeMsgCallback( modemsgcallbackfunc_t fn , void* modemcallbackobj = nullptr);
+    void setVoiceMsgCallback( voicecallbackfunc_t fn  , void* voicecallbackobj = nullptr );
 
     void listen();
     void processMessage(  double deltatime, mididatabuffer_t *message );

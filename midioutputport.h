@@ -3,6 +3,9 @@
 
 
 #include <RtMidi.h>
+#include "midisystemexclusivemessage.h"
+#include "midichannelvoicemessage.h"
+#include "midichannelmodemessage.h"
 
 class MidiOutputPort
 {
@@ -17,6 +20,7 @@ public:
     void noteOn(int key,int vel);
     void noteOff(int key);
     void getOutput();
+    void sendMessage( mididatabuffer_t *msg );
 };
 
 #endif // MIDIOUTPUTPORT_H
