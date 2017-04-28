@@ -18,9 +18,9 @@ SOURCES += main.cpp \
 include(deployment.pri)
 qtcAddDeployment()
 
-INCLUDEPATH += /usr/local/include/rtmidi
+INCLUDEPATH += /usr/local/include/rtmidi /usr/local/include/
 
-LIBS += -L/usr/local/lib -lrtmidi -lc++
+LIBS += -L/usr/local/lib -lrtmidi -lc++ -L/usr/local/lib -lboost_serialization
 
 HEADERS += \
     midi.h \
